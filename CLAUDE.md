@@ -55,8 +55,7 @@ and all of them cost you a wrongly-filed delivery:
    only ever sorts on it. Keying status there would work by luck on a five-event
    shipment and misfile every other shape; a failed delivery landing at position
    5 would report as *delivered*. `test_sequence_order_is_not_a_status_code`
-   guards this. (Note: the research `BUILD_PLAN.md` recommends keying on
-   `sequenceOrder` — that predates reading the app bundle. Don't follow it.)
+   guards this.
 3. **German is the source language** of a Swiss carrier's own system and was
    unambiguous across every string. English/French/Italian are display only.
 
