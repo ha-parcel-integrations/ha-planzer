@@ -37,7 +37,7 @@ variables:
   # A Planzer shipment number is a bare integer, which is far too generic to
   # hunt for in e-mail text — it would match every price, date and order line.
   # So this anchors on the IKEA Switzerland order-number form instead
-  # (12345.0012345678), which is distinctive, and hands the whole thing to
+  # (98765.0012345678), which is distinctive, and hands the whole thing to
   # track_parcel: the integration derives the shipment number itself.
   planzer_codes: >-
     {{ content | regex_findall('(?<![0-9.])[0-9]{4,6}[.][0-9]{8,12}(?![0-9.])')

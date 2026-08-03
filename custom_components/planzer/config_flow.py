@@ -50,17 +50,19 @@ _IKEA_ORDER_RE = re.compile(r"^(\d+)\.(\d+)$")
 def normalize_tracking_code(value: str) -> str:
     """Return the bare Planzer shipment number for whatever the user pasted.
 
-    Two real-world input forms, both live-probed on a known-good shipment:
+    Two real-world input forms (the numbers below are illustrative):
 
-    * ``12345678`` — the shipment number itself, answers 200;
+    * ``12345678`` — the shipment number itself, which is what Planzer answers
+      to;
     * ``98765.0012345678`` — an Ikea CH order number. The right-hand part with
       its leading zeros stripped *is* the shipment number.
 
-    **The derivation is required, not cosmetic.** Neither the raw Ikea number
-    nor the unstripped right part (``0012345678``) resolves — both 404 — so a
-    user who pastes their order confirmation verbatim would otherwise get a
-    parcel that never leaves "unknown". Leading zeros are stripped from a bare
-    number too, for the user who copies only the right half.
+    **The derivation is required, not cosmetic** — verified against a real
+    shipment: neither the raw Ikea order number nor the unstripped right part
+    resolves, both 404. A user who pastes their order confirmation verbatim
+    would otherwise get a parcel that never leaves "unknown". Leading zeros are
+    stripped from a bare number too, for the user who copies only the right
+    half.
 
     Separators a user might paste (spaces, dashes) are dropped; a value that is
     not a number in either form is returned sanitised but unchanged in shape,

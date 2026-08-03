@@ -1,10 +1,12 @@
 """Sample Planzer API payloads shared by the test modules.
 
-:func:`delivered_sample` is a **real response**, captured live on 2026-08-03,
-with the address, reference and position identifiers blanked per the suite's
-privacy rules. Everything else here is derived from it by rewinding the event
-list, so the fixtures cannot drift away from the shape the API actually
-returns.
+:func:`delivered_sample` mirrors a **real response** captured live on
+2026-08-03: the structure, the status texts, the units and the timestamp quirks
+are exactly as the API returned them, while every identifier — shipment number,
+reference number, position number — and the address fields have been replaced
+with fictional values per the suite's privacy rules. Everything else here is
+derived from it by rewinding the event list, so the fixtures cannot drift away
+from the shape the API actually returns.
 
 The multi-position fixture is the exception and is **constructed by hand** — no
 multi-position shipment has ever been observed. It exists precisely because

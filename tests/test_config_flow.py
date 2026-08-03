@@ -17,11 +17,12 @@ from custom_components.planzer.const import (
 
 
 def test_normalize_derives_the_shipment_number_from_an_ikea_order():
-    """The derivation is required, not cosmetic — all three probed live.
+    """The derivation is required, not cosmetic.
 
-    ``98765.0012345678`` and ``0012345678`` both 404; only the stripped
-    right-hand part resolves. Ikea CH home deliveries are this carrier's main
-    consumer hook, so the number a user actually has is the order number.
+    Verified against a real shipment: the raw Ikea order number and the
+    unstripped right-hand part both 404, and only the stripped right-hand part
+    resolves. Ikea CH home deliveries are this carrier's main consumer hook, so
+    the number a user actually has is the order number.
     """
     assert normalize_tracking_code("98765.0012345678") == "12345678"
     assert normalize_tracking_code("0012345678") == "12345678"

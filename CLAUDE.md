@@ -87,9 +87,12 @@ only observed strings are mapped, unmapped ones warn (see below).
   error envelope — and it is also what a not-yet-registered shipment returns, so
   it maps to `None` → the coordinator's pending placeholder. 400/401 *are*
   errors: they mean the URL template is wrong, not that the user mistyped.
-- **The Ikea derivation is required, not cosmetic.** `98765.0012345678` and
-  `0012345678` both 404; only `12345678` resolves. `normalize_tracking_code`
-  does it, and the service + options flow both go through it.
+- **The Ikea derivation is required, not cosmetic.** Verified against a real
+  shipment: the raw Ikea order number and its unstripped right-hand part both
+  404, and only the stripped right-hand part resolves.
+  `normalize_tracking_code` does it, and the service + options flow both go
+  through it. (Every number in this repo's docs, fixtures and tests is
+  fictional — the real one lives only in the private research repo.)
 
 ### Pre-1.0: what still needs a real user's parcel
 
