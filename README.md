@@ -6,9 +6,11 @@
 
 > 💬 Questions or feedback? Join the discussion on the [Home Assistant community](https://community.home-assistant.io/t/packages-postnl-dhl-nl-dpd-and-gls-parcel-integration/112433/).
 
-A custom Home Assistant integration that tracks your [Planzer](https://www.planzer-paket.ch/) parcels in Switzerland 🇨🇭. No account is needed — you enter the shipment number yourself, just like on the Planzer tracking site.
+A custom Home Assistant integration that tracks your [Planzer](https://www.planzer-paket.ch/) parcels in Switzerland and Liechtenstein 🇨🇭🇱🇮. No account is needed — you enter the shipment number yourself, just like on the Planzer tracking site.
 
 Planzer is a Swiss logistics operator and, for most households, **the carrier behind IKEA Switzerland home deliveries** — so if your IKEA order is on its way, this is the integration that follows it.
+
+Planzer Paket delivers across the whole of Switzerland and the Principality of Liechtenstein. Cross-border shipments are not part of that service — they run through Planzer Transport AG on a different, account-only system, which this integration cannot read.
 
 Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) family: it publishes the same canonical parcel format, statuses and events as the other carrier integrations, so it plugs straight into the [Parcel Aggregator](https://github.com/ha-parcel-integrations/ha-parcel-aggregator) and cross-carrier automations.
 
@@ -47,8 +49,9 @@ Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) 
 ## Requirements
 
 - Home Assistant 2024.7 or newer
-- A Planzer shipment number, or the IKEA Switzerland order number it came from
-  — no account needed
+- A parcel delivered by Planzer Paket in Switzerland or Liechtenstein
+- Its shipment number, or the IKEA Switzerland order number it came from — no
+  account needed
 
 ## Installation
 

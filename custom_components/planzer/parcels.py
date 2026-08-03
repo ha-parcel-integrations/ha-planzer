@@ -37,9 +37,10 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# Planzer is Swiss and domestic; its timestamps carry no offset (see
-# :func:`parse_planzer_timestamp`) and its delivery days are bare dates. Both
-# are interpreted in this zone.
+# Planzer Paket is domestic to Switzerland and Liechtenstein, which share one
+# zone (``Europe/Vaduz`` is a link to ``Europe/Zurich``). Its timestamps carry
+# no offset (see :func:`parse_planzer_timestamp`) and its delivery days are bare
+# dates; both are interpreted here.
 CARRIER_TZ = ZoneInfo("Europe/Zurich")
 
 # Where users report a status we do not map yet. Rewritten by the bootstrap
@@ -262,8 +263,9 @@ def parse_planzer_timestamp(value: Any) -> datetime | None:
       Python 3.11+ parses both, but the 7-digit form is a .NET tick count that
       older readers choke on, so it is truncated to 6 digits first — the
       integration must not depend on the host's Python being new enough.
-    * **No timezone.** The values are naive and this is a Swiss domestic
-      carrier, so they are read as ``Europe/Zurich`` rather than UTC. Reading
+    * **No timezone.** The values are naive and this is a domestic
+      Swiss/Liechtenstein carrier, so they are read as ``Europe/Zurich`` rather
+      than UTC. Reading
       them as UTC would shift every event by one or two hours depending on DST.
       *Unverified* — no sample has ever carried an offset to check against.
     """
