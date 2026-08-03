@@ -8,21 +8,15 @@ body:
   - type: markdown
     attributes:
       value: |
-        Planzer tracking was built from a **single** real shipment, so there are
-        several things this integration has never seen. It asks you to report
-        any of them with a warning in your log:
+        The integration logs a warning such as
 
-        - `status=… → reported as 'unknown'` — a status text we do not map yet
-        - `Planzer returned a delivery time window for the first time` — nobody
-          has ever seen one populated
-        - `Planzer shipment has N transport positions` — a multi-parcel shipment
-        - `Planzer reported an event with success=false` — probably a failed
-          delivery attempt
+        ```
+        Unrecognised Planzer status — help us map it. Open an issue
+        and paste this line: …
+          status=… → reported as 'unknown'
+        ```
 
-        Paste the full line below and we'll add it to the mapping. If you can,
-        also attach the integration's **diagnostics** (Settings → Devices &
-        Services → Planzer → ⋮ → Download diagnostics) — addresses and order
-        numbers are redacted automatically.
+        Paste that full line below and we'll add it to the mapping.
   - type: textarea
     id: logline
     attributes:
@@ -35,7 +29,7 @@ body:
     id: version
     attributes:
       label: Integration version
-      placeholder: "e.g. 0.9.0"
+      placeholder: "e.g. 2.6.0"
     validations:
       required: true
   - type: input
@@ -43,3 +37,18 @@ body:
     attributes:
       label: Home Assistant version
       placeholder: "e.g. 2026.7.0"
+  - type: markdown
+    attributes:
+      value: |
+        ### 💡 Even better: attach a diagnostics file
+
+        A diagnostics download shows us the exact payload behind the warning —
+        usually all we need to fix the mapping, with no back-and-forth.
+
+        1. In Home Assistant, open **Settings → Devices & services**.
+        2. Open this integration, then click the **⋮** (three dots) on its entry.
+        3. Choose **Download diagnostics**.
+        4. Drag the downloaded file onto this issue to attach it.
+
+        Home Assistant redacts the file before download — names, addresses and
+        tracking numbers are removed, while the status codes we need are kept.
