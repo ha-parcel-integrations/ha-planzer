@@ -1,0 +1,45 @@
+name: 🏷️ Unrecognised parcel status
+description: The integration logged a warning asking you to report an unrecognised status or event.
+title: "[status] "
+labels: ["unrecognised-status"]
+assignees:
+  - peternijssen
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Planzer tracking was built from a **single** real shipment, so there are
+        several things this integration has never seen. It asks you to report
+        any of them with a warning in your log:
+
+        - `status=… → reported as 'unknown'` — a status text we do not map yet
+        - `Planzer returned a delivery time window for the first time` — nobody
+          has ever seen one populated
+        - `Planzer shipment has N transport positions` — a multi-parcel shipment
+        - `Planzer reported an event with success=false` — probably a failed
+          delivery attempt
+
+        Paste the full line below and we'll add it to the mapping. If you can,
+        also attach the integration's **diagnostics** (Settings → Devices &
+        Services → Planzer → ⋮ → Download diagnostics) — addresses and order
+        numbers are redacted automatically.
+  - type: textarea
+    id: logline
+    attributes:
+      label: The log line
+      description: Copy the full "help us map it" warning line from your Home Assistant log.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Integration version
+      placeholder: "e.g. 0.9.0"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "e.g. 2026.7.0"

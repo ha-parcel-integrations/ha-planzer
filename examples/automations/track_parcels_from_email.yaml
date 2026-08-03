@@ -1,0 +1,121 @@
+# Extract Planzer tracking codes from incoming e-mail and register them
+# with `planzer.track_parcel`, so parcels start tracking the moment the
+# shipping confirmation lands in your inbox — no manual entry.
+#
+# Requirements:
+#   - one or more core IMAP config entries with "text" enabled under
+#     "message data" and the max message size raised (carrier mails are
+#     long) — full setup guide and pitfalls: track_parcels_from_email.md
+#   - optional: an `ai_task` entity for the AI fallback branch; delete
+#     the whole `else:` block if you don't use one
+#   - PRIVACY: by default this fires on EVERY incoming mail and (with the
+#     AI branch) can send mail bodies to your AI Task. Scope the IMAP
+#     search to the carrier's sender first — see "Scope & privacy" in the .md.
+#
+# The regex is deliberately written without backslashes (`(?<![0-9A-Za-z])`
+# instead of `\b`, `[0-9]` instead of `\d`): Jinja treats `\b` inside a
+# string literal as a backspace escape, so the pattern would silently
+# never match.
+
+alias: "Planzer: track from e-mail"
+description: >-
+  Listens to imap_content events from all IMAP entries. Fast regex path for
+  Planzer tracking codes; optional AI fallback for mails whose layout the
+  regex does not recognise.
+mode: queued
+max: 10
+
+triggers:
+  - trigger: event
+    event_type: imap_content
+
+variables:
+  sender: "{{ trigger.event.data.sender | default('') | lower }}"
+  subject: "{{ trigger.event.data.subject | default('') }}"
+  body: "{{ trigger.event.data.text | default('') }}"
+  content: "{{ subject ~ ' ' ~ body }}"
+  # A Planzer shipment number is a bare integer, which is far too generic to
+  # hunt for in e-mail text — it would match every price, date and order line.
+  # So this anchors on the IKEA Switzerland order-number form instead
+  # (12345.0012345678), which is distinctive, and hands the whole thing to
+  # track_parcel: the integration derives the shipment number itself.
+  planzer_codes: >-
+    {{ content | regex_findall('(?<![0-9.])[0-9]{4,6}[.][0-9]{8,12}(?![0-9.])')
+       | unique | list }}
+  # Keyword gate for the AI fallback — localise to your language(s).
+  is_parcel_mail: >-
+    {{ content | lower is search('planzer|ikea|sendung|zustellung|lieferung|paket|track|shipment|delivery|livraison|envoi|consegna') }}
+
+conditions:
+  # initial=true means "new message"; false means a duplicate trigger of
+  # the SAME message (e.g. after a reconnect) — requiring it is free dedup.
+  - condition: template
+    value_template: "{{ trigger.event.data.initial | default(true) }}"
+  - condition: template
+    value_template: "{{ is_parcel_mail or planzer_codes | count > 0 }}"
+
+actions:
+  - repeat:
+      for_each: "{{ planzer_codes }}"
+      sequence:
+        - action: planzer.track_parcel
+          data:
+            tracking_code: "{{ repeat.item }}"
+  - if:
+      - condition: template
+        value_template: "{{ planzer_codes | count > 0 }}"
+    then:
+      - action: notify.mobile_app_your_phone
+        data:
+          title: "📦 Planzer parcel picked up from mail"
+          message: >-
+            {{ planzer_codes | join(', ') }} (mail from {{ sender }})
+    else:
+      # ---- Optional AI fallback — delete this block if you have no ai_task entity ----
+      - action: ai_task.generate_data
+        data:
+          task_name: planzer-tracking-code-extraction
+          entity_id: ai_task.your_ai_task_entity
+          instructions: >-
+            Below is an e-mail. Determine whether it contains a Planzer
+            shipment number. A Planzer shipment number is a bare integer,
+            usually 8 digits. It may also appear as an IKEA Switzerland
+            order number like 98765.0012345678 — return that whole string
+            if you see it. Only return a number that is presented as a
+            shipment, delivery or order-tracking reference; never a price,
+            date, customer, invoice or article number. If the mail is from
+            a different carrier, answer 'other'. When in doubt: 'none'.
+
+            Sender: {{ sender }}
+            Subject: {{ subject }}
+            Body:
+            {{ body[:6000] }}
+          structure:
+            carrier:
+              description: Whether a Planzer tracking code was found
+              required: true
+              selector:
+                select:
+                  options: ["planzer", "other", "none"]
+            tracking_code:
+              description: The tracking code, or empty if none
+              required: false
+              selector:
+                text:
+        response_variable: ai_result
+      - choose:
+          - conditions: "{{ ai_result.data.carrier == 'planzer' and (ai_result.data.tracking_code | default('') | trim) != '' }}"
+            sequence:
+              - action: planzer.track_parcel
+                data:
+                  tracking_code: "{{ ai_result.data.tracking_code | trim }}"
+              - action: notify.mobile_app_your_phone
+                data:
+                  title: "📦 Planzer parcel picked up from mail (AI)"
+                  message: "{{ ai_result.data.tracking_code | trim }} (mail from {{ sender }})"
+          - conditions: "{{ ai_result.data.carrier == 'other' and (ai_result.data.tracking_code | default('') | trim) != '' }}"
+            sequence:
+              - action: notify.mobile_app_your_phone
+                data:
+                  title: "📦 Tracking number found – not a Planzer parcel"
+                  message: "{{ ai_result.data.tracking_code | trim }} (mail from {{ sender }}, subject: {{ subject }})"
