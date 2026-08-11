@@ -1,0 +1,144 @@
+{
+  "title": "Planzer",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configura Planzer",
+        "description": "Il tracciamento Planzer non richiede account né codice postale — l'hub viene creato subito. Aggiungi i pacchi in seguito tramite le opzioni dell'integrazione o il servizio `planzer.track_parcel`."
+      }
+    },
+    "abort": {
+      "already_configured": "Planzer è già configurato."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni Planzer",
+        "sections": {
+          "parcels": {
+            "name": "Pacchi",
+            "data": {
+              "add": "Aggiungi un pacco",
+              "remove": "Rimuovi pacchi"
+            },
+            "data_description": {
+              "add": "Inserisci un numero di spedizione Planzer (ad es. 12345678) o il tuo numero d'ordine IKEA Svizzera (ad es. 98765.0012345678) — il numero di spedizione viene derivato automaticamente."
+            }
+          },
+          "delivered": {
+            "name": "Pacchi consegnati",
+            "data": {
+              "delivered_filter_type": "Filtra per",
+              "delivered_filter_amount": "Quantità"
+            },
+            "data_description": {
+              "delivered_filter_type": "Mostra i pacchi consegnati negli ultimi X giorni, oppure limita ai X più recenti.",
+              "delivered_filter_amount": "Numero di giorni o di pacchi da mostrare."
+            }
+          },
+          "history": {
+            "name": "Cronologia pacchi",
+            "data": {
+              "include_history": "Includi cronologia dello stato"
+            },
+            "data_description": {
+              "include_history": "Aggiunge un attributo di cronologia per pacco che elenca ogni aggiornamento di stato (data e ora, stato, testo originale). Disattivato per impostazione predefinita."
+            }
+          },
+          "polling": {
+            "name": "Interrogazione",
+            "data": {
+              "refresh_interval": "Aggiorna ogni"
+            },
+            "data_description": {
+              "refresh_interval": "Con quale frequenza l'integrazione controlla su Planzer gli aggiornamenti dei pacchi. Un intervallo più lungo è più leggero per l'API di Planzer; il valore predefinito di 30 minuti è sufficiente per la maggior parte dei pacchi."
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "invalid_tracking_code": "Questo non sembra un numero di spedizione Planzer. Inserisci il numero da solo (ad es. 12345678) o un numero d'ordine IKEA completo.",
+      "already_tracked": "Questo pacco è già tracciato."
+    }
+  },
+  "selector": {
+    "refresh_interval": {
+      "options": {
+        "15": "15 minuti",
+        "30": "30 minuti",
+        "60": "60 minuti",
+        "120": "120 minuti",
+        "240": "240 minuti"
+      }
+    },
+    "delivered_filter_type": {
+      "options": {
+        "days": "Giorni",
+        "parcels": "Numero di pacchi"
+      }
+    }
+  },
+  "services": {
+    "track_parcel": {
+      "name": "Traccia pacco",
+      "description": "Avvia il tracciamento di un pacco tramite il suo numero di spedizione Planzer.",
+      "fields": {
+        "tracking_code": {
+          "name": "Codice di tracciamento",
+          "description": "Il numero di spedizione Planzer, oppure il numero d'ordine IKEA Svizzera da cui deriva."
+        }
+      }
+    },
+    "untrack_parcel": {
+      "name": "Interrompi tracciamento pacco",
+      "description": "Interrompe il tracciamento di un pacco tramite il suo numero di spedizione Planzer.",
+      "fields": {
+        "tracking_code": {
+          "name": "Codice di tracciamento",
+          "description": "Il numero di spedizione Planzer di cui interrompere il tracciamento."
+        }
+      }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "parcel_registered": "Un pacco è stato registrato",
+      "parcel_status_changed": "Lo stato di un pacco è cambiato",
+      "parcel_delivered": "Un pacco è stato consegnato",
+      "parcel_delivery_time_changed": "L'orario di consegna previsto di un pacco è cambiato"
+    }
+  },
+  "entity": {
+    "button": {
+      "refresh": {
+        "name": "Aggiorna"
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "name": "Consegne"
+      }
+    },
+    "sensor": {
+      "incoming_parcels": {
+        "name": "Pacchi in arrivo",
+        "unit_of_measurement": "pacchi"
+      },
+      "next_delivery": {
+        "name": "Prossima consegna"
+      },
+      "delivered_parcels": {
+        "name": "Pacchi consegnati",
+        "unit_of_measurement": "pacchi"
+      },
+      "last_update": {
+        "name": "Ultimo aggiornamento riuscito"
+      },
+      "parcel": {
+        "name": "Pacco {barcode}"
+      }
+    }
+  }
+}
