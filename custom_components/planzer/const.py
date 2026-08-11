@@ -28,6 +28,23 @@ class ParcelStatus(StrEnum):
 
 PLATFORMS = [Platform.BUTTON, Platform.CALENDAR, Platform.SENSOR]
 
+# Every optional key the parcel contract defines. CAPABILITIES below must be a
+# subset of this — it exists so a typo in CAPABILITIES fails a test instead of
+# silently dropping this carrier off a table on the docs site.
+KNOWN_CAPABILITIES = frozenset(
+    {"weight", "dimensions", "delivery_window", "pickup_point", "url", "history"}
+)
+
+# Which optional contract fields this carrier's API actually populates — feeds
+# the comparison table on the docs site. Keep in lockstep with
+# normalize_parcel() in parcels.py: everything not listed here comes back as a
+# literal None there. Planzer runs no parcel-shop network, so pickup_point is
+# the only gap — weight, dimensions, delivery window, url, and history are all
+# populated.
+CAPABILITIES = frozenset(
+    {"weight", "dimensions", "delivery_window", "url", "history"}
+)
+
 # The public tracking endpoint the integration polls, and the human-facing deep
 # link surfaced on each parcel's ``url`` field. Full mechanics (probe results,
 # annotated payload, mapping table) live in ``carrier-research/api/planzer/``.

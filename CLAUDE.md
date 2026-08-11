@@ -70,7 +70,9 @@ only observed strings are mapped, unmapped ones warn (see below).
 
 - **`pickup` is always `False`, `pickup_point` always `None`** — Planzer runs no
   parcel-shop network, so `at_pickup_point` cannot occur. `returning` is
-  likewise unmapped (never seen).
+  likewise unmapped (never seen). Reflected in `const.py`'s `CAPABILITIES`
+  (feeds the docs site's comparison table) — keep the two in agreement if
+  that ever changes.
 - **`dimensions` is `None` for a multi-position shipment.** Two boxes have no
   meaningful combined length; summing or bounding-boxing would publish a number
   no dashboard could interpret. `weight` *is* summed (g → kg) because a total
