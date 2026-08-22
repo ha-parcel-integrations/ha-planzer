@@ -34,7 +34,7 @@ you act in one of these areas:
 
 ## Carrier-specific notes
 
-**API mechanics live in `carrier-research/api/planzer/` (private research repo)** — the
+**API mechanics live in `carrier-research/planzer/api/` (private research repo)** — the
 endpoint, the annotated 200, the payload→canonical mapping table and the probe
 results. Do not duplicate them here; this file is HA-integration decisions only.
 
@@ -161,4 +161,4 @@ python -m pytest tests/ --cov=custom_components.planzer
 
 Coverage must stay **above 95%** (silver `test-coverage` rule). Run before
 committing. A code change updates the README + this file + `docs/` in the same
-commit; API mechanics live in `carrier-research/api/planzer/`, not in this repo.
+commit; API mechanics live in `carrier-research/planzer/api/`, not in this repo.
