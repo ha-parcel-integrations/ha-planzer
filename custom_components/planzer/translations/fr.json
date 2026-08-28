@@ -55,6 +55,25 @@
               "refresh_interval": "Fréquence à laquelle l'intégration vérifie les mises à jour des colis auprès de Planzer. Un intervalle plus long ménage l'API de Planzer ; la valeur par défaut de 30 minutes suffit pour la plupart des colis."
             }
           }
+        },
+        "menu_options": {
+          "parcels": "Colis",
+          "settings": "Paramètres"
+        }
+      },
+      "parcels": {
+        "title": "Colis",
+        "data": {
+          "tracking_codes": "Codes de suivi"
+        }
+      },
+      "settings": {
+        "title": "Paramètres",
+        "data": {
+          "delivered_filter_type": "Colis livrés : filtrer par",
+          "delivered_filter_amount": "Colis livrés : nombre",
+          "include_history": "Inclure l’historique des statuts",
+          "refresh_interval": "Actualiser toutes les"
         }
       }
     },
