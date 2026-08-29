@@ -48,7 +48,7 @@ Part of the [ha-parcel-integrations](https://github.com/ha-parcel-integrations) 
 
 ## Requirements
 
-- Home Assistant 2024.7 or newer
+- Home Assistant 2024.12 or newer
 - A parcel delivered by Planzer Paket in Switzerland or Liechtenstein
 - Its shipment number, or the IKEA Switzerland order number it came from — no
   account needed
