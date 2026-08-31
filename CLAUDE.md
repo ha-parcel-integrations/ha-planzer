@@ -34,6 +34,11 @@ you act in one of these areas:
 
 ## Carrier-specific notes
 
+**No `awaiting_pickup` sensor, deliberately.** Planzer runs no parcel-shop
+network, so `at_pickup_point` cannot occur and `pickup`/`pickup_point` stay
+`False`/`None` in `parcels.py`. Structural, not a gap — see
+`.github/CONVENTIONS.md`'s pickup-point convention.
+
 **API mechanics live in `carrier-research/planzer/api/` (private research repo)** — the
 endpoint, the annotated 200, the payload→canonical mapping table and the probe
 results. Do not duplicate them here; this file is HA-integration decisions only.
