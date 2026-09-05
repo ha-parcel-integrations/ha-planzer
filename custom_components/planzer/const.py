@@ -71,8 +71,8 @@ REQUEST_HEADERS = {
 # Which of the four language keys on every Planzer text object we surface as
 # ``raw_status``. English is the suite-wide default for ``raw_status``; note
 # that Planzer's English is unreliable as a *status signal* (it renders
-# "Zugestellt" as "Shipped"), which is why the status map keys on
-# ``sequenceOrder`` instead and this is display-only.
+# "Zugestellt" as "Shipped"), which is why the status map keys on the German
+# text instead and this is display-only.
 TEXT_LANGUAGE = "english"
 
 # Tracked parcels live in the config entry options as a list of
