@@ -3,8 +3,7 @@
 Keyless: the shipment number alone keys the lookup. The endpoint answers the
 shipment object directly — there is **no** result envelope, so success is
 "HTTP 200 with a JSON object" and an unknown number is a bare ``404`` with an
-empty body. That is the whole protocol; full mechanics live in
-``carrier-research/api/planzer/``.
+empty body. That is the whole protocol.
 
 The contract the coordinator relies on:
 

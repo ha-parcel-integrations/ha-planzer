@@ -46,8 +46,7 @@ CAPABILITIES = frozenset(
 )
 
 # The public tracking endpoint the integration polls, and the human-facing deep
-# link surfaced on each parcel's ``url`` field. Full mechanics (probe results,
-# annotated payload, mapping table) live in ``carrier-research/api/planzer/``.
+# link surfaced on each parcel's ``url`` field.
 #
 # The trailing ``Pak`` is the transport-system discriminator, not decoration:
 # the tracking app's enum is ``Pak = 1`` (parcels) / ``Tms = 2`` (freight), and
@@ -91,8 +90,7 @@ DEFAULT_DELIVERED_FILTER_TYPE = "days"
 DEFAULT_DELIVERED_FILTER_AMOUNT = 7
 
 # Dynamic, status-driven polling — unconditional, no user-facing interval
-# option. See carrier-research/dynamic-polling.md for the full algorithm and
-# the reasoning behind it.
+# option.
 #
 # Quiet window: no polling between these local hours except the two anchors
 # below, for overnight / end-of-day catch-up.

@@ -12,10 +12,9 @@ from . import PlanzerConfigEntry
 # identifies a person, an address or a specific parcel. Over-redacting is
 # cheap; under-redacting leaks a user's home address into a GitHub thread.
 #
-# Walked against a real 200 (see ``carrier-research/api/planzer/``); every leaf
-# of both address blocks is covered by redacting the blocks themselves, and the
-# individual field names are listed too in case Planzer ever hoists one to the
-# top level.
+# Walked against a real 200; every leaf of both address blocks is covered by
+# redacting the blocks themselves, and the individual field names are listed
+# too in case Planzer ever hoists one to the top level.
 TO_REDACT = {
     # canonical fields we publish ourselves
     "tracking_code",
