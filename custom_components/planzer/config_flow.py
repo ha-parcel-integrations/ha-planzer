@@ -30,14 +30,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# A Planzer shipment number is a **bare integer** (8 digits on every sample
-# seen). Kept a little wider than 8 so an unusual length is not rejected
-# outright — a wrong-but-plausible number simply comes back "not found" on the
-# next poll, which is far friendlier than a config flow that refuses a valid
-# code. This regex is also what the ``track_parcel`` service and the
-# e-mail-parsing example automation validate against.
-_TRACKING_CODE_RE = re.compile(r"^\d{4,20}$")
-
 # The Ikea Switzerland order-confirmation form, e.g. ``98765.0012345678``.
 # Ikea CH home deliveries are the realistic consumer hook for this carrier, and
 # the number printed in *their* mail is not the number Planzer answers to.
@@ -75,11 +67,13 @@ def normalize_tracking_code(value: str) -> str:
 
 
 def valid_tracking_code(value: str) -> bool:
-    """Whether ``value`` looks like a Planzer shipment number.
+    """Accept every non-empty code.
 
-    Expects an already-:func:`normalize_tracking_code`-d value.
+    Planzer's real shipment-number shape varies too much and is not fully
+    confirmed, and an unrecognised code just comes back "not found" from the
+    API anyway. Expects an already-:func:`normalize_tracking_code`-d value.
     """
-    return bool(_TRACKING_CODE_RE.match(value))
+    return bool(value)
 
 
 def _current_parcels(entry: ConfigEntry) -> list[dict[str, str]]:

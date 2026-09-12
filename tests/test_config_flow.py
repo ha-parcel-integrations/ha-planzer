@@ -39,16 +39,12 @@ def test_normalize_tracking_code_never_empties_an_all_zero_number():
     assert normalize_tracking_code("0000") == "0"
 
 
-def test_normalize_leaves_a_non_numeric_value_recognisably_wrong():
-    """So the flow can reject it with a real error instead of silently munging."""
-    assert not valid_tracking_code(normalize_tracking_code("CH1234567890"))
-
-
-def test_valid_tracking_code_bounds():
+def test_valid_tracking_code_accepts_any_non_empty_code():
     assert valid_tracking_code("12345678")
-    assert not valid_tracking_code("123")  # too short
-    assert not valid_tracking_code("1" * 21)  # too long
-    assert not valid_tracking_code("1234567A")  # Planzer numbers are bare integers
+    assert valid_tracking_code("123")
+    assert valid_tracking_code("1" * 21)
+    assert valid_tracking_code("1234567A")
+    assert not valid_tracking_code("")
 
 
 async def test_user_flow_creates_hub_without_input(hass):
