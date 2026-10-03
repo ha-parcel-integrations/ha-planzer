@@ -123,7 +123,7 @@
     },
     "sensor": {
       "incoming_parcels": {
-        "name": "Colis à venir",
+        "name": "Colis entrants",
         "unit_of_measurement": "colis"
       },
       "next_delivery": {
