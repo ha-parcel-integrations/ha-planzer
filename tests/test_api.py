@@ -46,12 +46,12 @@ async def test_get_parcel_returns_the_shipment_on_success():
     assert url.endswith(f"/shipments/{CODE}/Pak")
 
 
-async def test_get_parcel_sends_a_browser_user_agent():
-    """Not load-bearing (Planzer answers any UA), but we send one anyway."""
+async def test_get_parcel_does_not_spoof_a_user_agent():
+    """Planzer answers any UA, so the session's own honest one is used."""
     session = _session_returning(200, delivered_sample())
     await PlanzerApiClient(session).async_get_parcel(CODE)
     headers = session.get.call_args.kwargs["headers"]
-    assert "Mozilla/5.0" in headers["User-Agent"]
+    assert "User-Agent" not in headers
 
 
 async def test_get_parcel_returns_none_on_404():

@@ -57,16 +57,9 @@ TRACKING_API_URL = "https://api.tracking.app.planzer.ch/api/v1/shipments/{tracki
 TRACKING_URL = "https://tracking.app.planzer.ch/?deliveryNumber={tracking_code}&system=Pak"
 
 # No key, no cookie, no CSRF, no Origin/Referer check — and, probed 2026-08-03,
-# no User-Agent gate either (an absent, curl and python-shaped UA all answer
-# 200). The browser UA is sent anyway to blend into normal traffic, but nothing
-# here is load-bearing: do not add headers on the assumption that one is.
-REQUEST_HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-    ),
-    "Accept": "application/json",
-}
+# no User-Agent gate either. Nothing here is load-bearing: do not add headers
+# on the assumption that one is, and never spoof a browser User-Agent.
+REQUEST_HEADERS = {"Accept": "application/json"}
 
 # Which of the four language keys on every Planzer text object we surface as
 # ``raw_status``. English is the suite-wide default for ``raw_status``; note
