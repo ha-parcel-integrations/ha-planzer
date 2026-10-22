@@ -59,7 +59,11 @@ Planzer Paket delivers across the whole of Switzerland and the Principality of L
 ### HACS (recommended)
 
 1. Open HACS and search for **Planzer**.
-2. Install it and restart Home Assistant.
+2. Install it and restart Home Assistant if HACS asks you to.
+
+Or click the button below to open it directly in HACS:
+
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ha-parcel-integrations&repository=ha-planzer&category=integration)
 
 ### Manual
 
@@ -67,7 +71,9 @@ Copy `custom_components/planzer` into your `config/custom_components/` folder an
 
 ## Configuration
 
-Add the integration via **Settings → Devices & Services → Add Integration → Planzer**. There is nothing to fill in: the hub is created immediately (Planzer tracking needs no account).
+[![Open your Home Assistant instance and start setting up this integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=planzer)
+
+Or set it up by hand: add the integration via **Settings → Devices & Services → Add Integration → Planzer**. There is nothing to fill in: the hub is created immediately (Planzer tracking needs no account).
 
 Then add parcels via the integration's **Configure** dialog, the [`planzer.track_parcel`](#services) service, or a [dashboard button](examples/dashboards/add_parcel_card.yaml).
 
