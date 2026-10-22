@@ -14,11 +14,12 @@ is a four-language object (``german`` / ``english`` / ``french`` / ``italian``)
 the status map keys on the German text. See :data:`_STATUS_MAP` for why that is
 German and not English or ``sequenceOrder``.
 """
+
 from __future__ import annotations
 
+from datetime import UTC, datetime, time, timedelta
 import logging
 import re
-from datetime import datetime, time, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -211,7 +212,9 @@ def resolve_status(overall: Any, events: list[dict]) -> ParcelStatus:
     newest = events[-1]
     if newest.get("success") is False:
         return ParcelStatus.PROBLEM
-    if (mapped := map_event_status(localized(newest.get("text"), "german"))) is not None:
+    if (
+        mapped := map_event_status(localized(newest.get("text"), "german"))
+    ) is not None:
         return mapped
     return ParcelStatus.UNKNOWN
 
@@ -245,11 +248,11 @@ def parse_iso(value: str | None) -> datetime | None:
     if not value:
         return None
     try:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(value))
     except ValueError:
         return None
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     return parsed
 
 
@@ -275,7 +278,7 @@ def parse_planzer_timestamp(value: Any) -> datetime | None:
     # Truncate an over-long fractional part; leave an offset suffix intact.
     text = re.sub(r"(\.\d{6})\d+", r"\1", text)
     try:
-        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(text)
     except ValueError:
         return None
     if parsed.tzinfo is None:
@@ -340,7 +343,9 @@ def position_events(positions: list[dict]) -> list[dict]:
         events,
         key=lambda event: (
             not isinstance(event.get("sequenceOrder"), int),
-            event.get("sequenceOrder") if isinstance(event.get("sequenceOrder"), int) else 0,
+            event.get("sequenceOrder")
+            if isinstance(event.get("sequenceOrder"), int)
+            else 0,
         ),
     )
 
@@ -442,10 +447,16 @@ def planned_window(raw: dict) -> tuple[str | None, str | None]:
         return (None, None)
 
     window = delivery_day.get("timeWindowSettings") or {}
-    starts = [_parse_clock(window.get(key)) for key in ("start", "secondStart")]
-    ends = [_parse_clock(window.get(key)) for key in ("end", "secondEnd")]
-    starts = [value for value in starts if value is not None]
-    ends = [value for value in ends if value is not None]
+    starts = [
+        clock
+        for key in ("start", "secondStart")
+        if (clock := _parse_clock(window.get(key))) is not None
+    ]
+    ends = [
+        clock
+        for key in ("end", "secondEnd")
+        if (clock := _parse_clock(window.get(key))) is not None
+    ]
 
     if starts or ends:
         _warn_once(
@@ -602,14 +613,12 @@ def apply_delivered_filter(parcels: list[dict], entry: ConfigEntry) -> list[dict
     shows.
     """
     options = entry.options
-    filter_type = options.get(
-        CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE
-    )
+    filter_type = options.get(CONF_DELIVERED_FILTER_TYPE, DEFAULT_DELIVERED_FILTER_TYPE)
     amount = int(
         options.get(CONF_DELIVERED_FILTER_AMOUNT, DEFAULT_DELIVERED_FILTER_AMOUNT)
     )
     if filter_type == "days":
-        cutoff = datetime.now(timezone.utc) - timedelta(days=amount)
+        cutoff = datetime.now(UTC) - timedelta(days=amount)
         return [
             parcel
             for parcel in parcels

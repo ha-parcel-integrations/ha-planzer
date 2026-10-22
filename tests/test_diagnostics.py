@@ -1,9 +1,8 @@
 """Tests for Planzer diagnostics."""
+
 from unittest.mock import MagicMock
 
-from custom_components.planzer.diagnostics import (
-    async_get_config_entry_diagnostics,
-)
+from custom_components.planzer.diagnostics import async_get_config_entry_diagnostics
 from custom_components.planzer.parcels import normalize_parcel
 
 from .payloads import DELIVERED_CODE, delivered_sample

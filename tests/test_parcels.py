@@ -4,7 +4,8 @@ These need no Home Assistant instance — the whole point of keeping
 ``parcels.py`` free of I/O is that the carrier-specific mapping (the part you
 rewrite per carrier) can be tested as plain functions.
 """
-from datetime import datetime, timedelta, timezone
+
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -67,7 +68,7 @@ def _reset_warnings():
 
 
 @pytest.mark.parametrize(
-    "german,expected",
+    ("german", "expected"),
     [
         ("Erfasst", ParcelStatus.REGISTERED),
         ("Übergeben", ParcelStatus.IN_TRANSIT),
@@ -111,7 +112,7 @@ def test_english_shipped_is_never_treated_as_dispatched():
 
 
 def test_sequence_order_is_not_a_status_code():
-    """"In Zustellung" appears at sequenceOrder 3 *and* 4 in the real payload.
+    """ "In Zustellung" appears at sequenceOrder 3 *and* 4 in the real payload.
 
     Guards the design decision: one status carrying two different
     sequenceOrders is what proves the field is an ordering index, not a code.
@@ -193,7 +194,7 @@ def test_resolve_status_unknown_when_nothing_maps():
 def test_parse_iso_handles_z_naive_and_garbage():
     assert parse_iso("2026-04-29T13:12:42Z").tzinfo is not None
     # A naive value is assumed UTC so mixed lists still sort.
-    assert parse_iso("2026-04-29T13:12:42").tzinfo == timezone.utc
+    assert parse_iso("2026-04-29T13:12:42").tzinfo == UTC
     assert parse_iso("not-a-date") is None
     assert parse_iso(None) is None
 
@@ -550,7 +551,7 @@ def _entry(filter_type: str, amount: int) -> MockConfigEntry:
 
 
 def _delivered_pair() -> list[dict]:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return [
         {"barcode": "RECENT", "delivered_at": (now - timedelta(days=1)).isoformat()},
         {"barcode": "OLD", "delivered_at": (now - timedelta(days=30)).isoformat()},

@@ -1,4 +1,5 @@
 """Constants for the Planzer parcel tracker integration."""
+
 from enum import StrEnum
 
 from homeassistant.const import Platform
@@ -16,14 +17,14 @@ class ParcelStatus(StrEnum):
     roughly the order a parcel moves through.
     """
 
-    REGISTERED = "registered"               # Sender announced the parcel; not handed over yet
-    IN_TRANSIT = "in_transit"               # In the carrier's network
-    OUT_FOR_DELIVERY = "out_for_delivery"   # On a delivery vehicle today
-    AT_PICKUP_POINT = "at_pickup_point"     # Ready to collect at a pickup location
-    DELIVERED = "delivered"                 # Handed over
-    RETURNING = "returning"                 # Failed delivery, going back to sender
-    PROBLEM = "problem"                     # Carrier reports an exception/issue
-    UNKNOWN = "unknown"                     # Raw status we have not mapped yet
+    REGISTERED = "registered"  # Sender announced the parcel; not handed over yet
+    IN_TRANSIT = "in_transit"  # In the carrier's network
+    OUT_FOR_DELIVERY = "out_for_delivery"  # On a delivery vehicle today
+    AT_PICKUP_POINT = "at_pickup_point"  # Ready to collect at a pickup location
+    DELIVERED = "delivered"  # Handed over
+    RETURNING = "returning"  # Failed delivery, going back to sender
+    PROBLEM = "problem"  # Carrier reports an exception/issue
+    UNKNOWN = "unknown"  # Raw status we have not mapped yet
 
 
 PLATFORMS = [Platform.BUTTON, Platform.CALENDAR, Platform.SENSOR]
@@ -41,9 +42,7 @@ KNOWN_CAPABILITIES = frozenset(
 # literal None there. Planzer runs no parcel-shop network, so pickup_point is
 # the only gap — weight, dimensions, delivery window, url, and history are all
 # populated.
-CAPABILITIES = frozenset(
-    {"weight", "dimensions", "delivery_window", "url", "history"}
-)
+CAPABILITIES = frozenset({"weight", "dimensions", "delivery_window", "url", "history"})
 
 # The public tracking endpoint the integration polls, and the human-facing deep
 # link surfaced on each parcel's ``url`` field.
@@ -53,8 +52,12 @@ CAPABILITIES = frozenset(
 # the route accepts either the name or the number. Only the parcel side is
 # public — ``Tms``/``2`` answers 404 and the untyped path answers 401, so this
 # is deliberately not parameterised.
-TRACKING_API_URL = "https://api.tracking.app.planzer.ch/api/v1/shipments/{tracking_code}/Pak"
-TRACKING_URL = "https://tracking.app.planzer.ch/?deliveryNumber={tracking_code}&system=Pak"
+TRACKING_API_URL = (
+    "https://api.tracking.app.planzer.ch/api/v1/shipments/{tracking_code}/Pak"
+)
+TRACKING_URL = (
+    "https://tracking.app.planzer.ch/?deliveryNumber={tracking_code}&system=Pak"
+)
 
 # No key, no cookie, no CSRF, no Origin/Referer check — and, probed 2026-08-03,
 # no User-Agent gate either. Nothing here is load-bearing: do not add headers

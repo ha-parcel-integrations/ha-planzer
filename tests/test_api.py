@@ -3,16 +3,14 @@
 Planzer has no result envelope: a 200 *is* the shipment, and a 404 *is* "no
 such number". Every test here pins one half of that.
 """
+
 import json
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
 import pytest
 
-from custom_components.planzer.api import (
-    PlanzerApiClient,
-    PlanzerApiError,
-)
+from custom_components.planzer.api import PlanzerApiClient, PlanzerApiError
 
 from .payloads import DELIVERED_CODE, delivered_sample
 
