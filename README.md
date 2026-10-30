@@ -131,6 +131,7 @@ Standard HA removal applies: **Settings → Devices & Services → Planzer → �
 | `sensor.planzer_parcel_<code>` | One per tracked parcel; state is the canonical status, attributes carry the full normalised parcel |
 | `sensor.planzer_next_delivery` | Earliest expected delivery moment across all active parcels |
 | `sensor.planzer_delivered_parcels` | Recently delivered parcels (see the retention option) |
+| `calendar.planzer_deliveries` | Read-only calendar of expected deliveries, no extra API calls |
 | `sensor.planzer_last_successful_update` | Diagnostic: when Planzer was last polled successfully |
 
 A delivered parcel moves from its per-parcel sensor to the delivered sensor automatically.
@@ -196,7 +197,7 @@ logger:
 - **A parcel shows `unknown`** — Planzer does not know the number yet (their API answers `404` until the shipment is registered), or the number is wrong. It picks up automatically once registered.
 - **You entered an IKEA order number and nothing happens** — check the sensor's `barcode` attribute. It should show only the part after the dot, without leading zeros (`98765.0012345678` → `12345678`). The full order number is not a valid shipment number.
 - **The status is `unknown` but the tracking site shows progress** — this integration is still pre-1.0 and Planzer's full status vocabulary has not been observed. The log will carry an *Unrecognised Planzer status* warning; please report it.
-- **A status logs "Unrecognised Planzer status"** — please [open an issue](https://github.com/ha-parcel-integrations/ha-planzer/issues/new) with the logged line so the mapping can be extended.
+- **A status logs "Unrecognised Planzer status"** — please [open an issue](https://github.com/ha-parcel-integrations/ha-planzer/issues/new?template=unrecognised_status.yml) with the logged line so the mapping can be extended.
 
 ## Related integrations
 
