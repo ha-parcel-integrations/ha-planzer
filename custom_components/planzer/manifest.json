@@ -1,6 +1,7 @@
 {
   "domain": "planzer",
   "name": "Planzer",
+  "categories": ["productivity_information"],
   "codeowners": [
     "@peter-mdf"
   ],
