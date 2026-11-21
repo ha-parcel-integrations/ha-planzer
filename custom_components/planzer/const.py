@@ -39,8 +39,8 @@ KNOWN_CAPABILITIES = frozenset(
 # Which optional contract fields this carrier's API actually populates — feeds
 # the comparison table on the docs site. Keep in lockstep with
 # normalize_parcel() in parcels.py: everything not listed here comes back as a
-# literal None there. Planzer runs no parcel-shop network, so pickup_point is
-# the only gap — weight, dimensions, delivery window, url, and history are all
+# literal None there. No pickup-point concept has been seen, so pickup_point
+# is the only gap — weight, dimensions, delivery window, url, and history are all
 # populated.
 CAPABILITIES = frozenset({"weight", "dimensions", "delivery_window", "url", "history"})
 

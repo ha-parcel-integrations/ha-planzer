@@ -21,6 +21,7 @@ from custom_components.planzer.const import (
 from custom_components.planzer.parcels import (
     apply_delivered_filter,
     build_history,
+    delivery_window,
     format_dimensions,
     localized,
     map_event_status,
@@ -28,7 +29,6 @@ from custom_components.planzer.parcels import (
     normalize_parcel,
     parse_iso,
     parse_planzer_timestamp,
-    planned_window,
     position_events,
     reset_one_shot_warnings,
     resolve_status,
@@ -306,18 +306,18 @@ def test_dimensions_need_all_three_axes():
 
 
 # ---------------------------------------------------------------------------
-# planned_window
+# delivery_window
 # ---------------------------------------------------------------------------
 
 
-def test_planned_window_is_a_whole_swiss_day_without_a_time_window():
-    start, end = planned_window(active_sample())
+def test_delivery_window_is_a_whole_swiss_day_without_a_time_window():
+    start, end = delivery_window(active_sample())
     assert start == "2026-03-16T00:00:00+01:00"
     assert end == "2026-03-16T23:59:59+01:00"
 
 
-def test_planned_window_uses_outer_bounds_of_a_two_slot_window(caplog):
-    start, end = planned_window(time_window_sample())
+def test_delivery_window_uses_outer_bounds_of_a_two_slot_window(caplog):
+    start, end = delivery_window(time_window_sample())
     assert start == "2026-03-16T08:00:00+01:00"
     assert end == "2026-03-16T17:00:00+01:00"
     # Never observed in the wild — it must ask the user to report it.
@@ -325,16 +325,16 @@ def test_planned_window_uses_outer_bounds_of_a_two_slot_window(caplog):
     assert "issues/new" in caplog.text
 
 
-def test_planned_window_without_a_date():
-    assert planned_window({}) == (None, None)
-    assert planned_window({"deliveryDay": {"date": None}}) == (None, None)
-    assert planned_window({"deliveryDay": {"date": "someday"}}) == (None, None)
+def test_delivery_window_without_a_date():
+    assert delivery_window({}) == (None, None)
+    assert delivery_window({"deliveryDay": {"date": None}}) == (None, None)
+    assert delivery_window({"deliveryDay": {"date": "someday"}}) == (None, None)
 
 
-def test_planned_window_ignores_an_unparseable_slot():
+def test_delivery_window_ignores_an_unparseable_slot():
     raw = time_window_sample()
     raw["deliveryDay"]["timeWindowSettings"] = {"start": "half past", "end": None}
-    assert planned_window(raw)[0] == "2026-03-16T00:00:00+01:00"
+    assert delivery_window(raw)[0] == "2026-03-16T00:00:00+01:00"
 
 
 # ---------------------------------------------------------------------------
@@ -407,8 +407,8 @@ def test_normalize_delivered_parcel():
     parcel = normalize_parcel(delivered_sample())
     assert parcel["carrier"] == "Planzer"
     assert parcel["barcode"] == DELIVERED_CODE
-    assert parcel["sender"] == "Itingen"
-    assert parcel["receiver"] == "Zürich"
+    assert parcel["sender"] is None
+    assert parcel["receiver"] is None
     assert parcel["status"] == ParcelStatus.DELIVERED
     assert parcel["raw_status"] == "Shipment delivered"
     assert parcel["delivered"] is True
@@ -496,7 +496,13 @@ def test_normalize_blank_addresses_become_none():
 def test_normalize_address_uses_name_when_planzer_fills_it():
     raw = active_sample()
     raw["pickupAddress"]["name"] = "IKEA Schweiz"
-    assert normalize_parcel(raw)["sender"] == "IKEA Schweiz, Itingen"
+    assert normalize_parcel(raw)["sender"] == "IKEA Schweiz"
+
+
+def test_normalize_address_is_never_a_city():
+    raw = active_sample()
+    assert raw["pickupAddress"]["city"]
+    assert normalize_parcel(raw)["sender"] is None
 
 
 def test_normalize_keeps_raw_payload():

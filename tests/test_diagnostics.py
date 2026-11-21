@@ -24,6 +24,7 @@ async def test_diagnostics_redacts_and_counts(hass):
         "country": "Schweiz",
         "addition": "c/o Doe",
     }
+    raw["pickupAddress"]["name"] = "Example Shop"
     raw["referenceNumber"] = "1000000001"
     raw["remark"] = "Ring twice, Jane"
 

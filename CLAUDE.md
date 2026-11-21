@@ -39,10 +39,11 @@ This repo follows it exactly.
 
 ## Carrier-specific notes
 
-**No `awaiting_pickup` sensor, deliberately.** Planzer runs no parcel-shop
-network, so `at_pickup_point` cannot occur and `pickup`/`pickup_point` stay
-`False`/`None` in `parcels.py`. Structural, not a gap — see
-`.github/CONVENTIONS.md`'s pickup-point convention.
+**No `awaiting_pickup` / `en_route_to_pickup_point` sensors.** Judgement call:
+no pickup point, locker or shop has ever appeared in a Planzer payload, so the
+carrier is treated as home-delivery only; `pickup` is a constant `False` and
+`pickup_point` `None` in `parcels.py`. If a real parcel ever shows a pickup
+point, add both sensors (contract section 3.1) and `is_pickup`.
 
 **API mechanics live in `carrier-research/planzer/api/` (private research repo)** — the
 endpoint, the annotated 200, the payload→canonical mapping table and the probe
@@ -78,8 +79,9 @@ only observed strings are mapped, unmapped ones warn (see below).
 
 ### Deliberate `None`s and other decisions
 
-- **`pickup` is always `False`, `pickup_point` always `None`** — Planzer runs no
-  parcel-shop network, so `at_pickup_point` cannot occur. `returning` is
+- **`pickup` is always `False`, `pickup_point` always `None`** — no pickup-point
+  concept has been seen, so neither pickup sensor is exposed; add both if a real
+  parcel shows one. `returning` is
   likewise unmapped (never seen). Reflected in `const.py`'s `CAPABILITIES`
   (feeds the docs site's comparison table) — keep the two in agreement if
   that ever changes.
@@ -90,8 +92,17 @@ only observed strings are mapped, unmapped ones warn (see below).
 - **Naive timestamps are read as `Europe/Zurich`, not UTC.** `createdAt` carries
   no offset and this is a Swiss domestic carrier; UTC would shift every event by
   1–2h depending on DST. **Unverified** — no sample has ever carried an offset.
-- **A date-only ETA becomes a whole-day window** in `Europe/Zurich`, matching
-  how the rest of the suite reports one (see DPD's `shipment_planned_window`).
+- **A date-only ETA becomes a whole-day window** in `Europe/Zurich`, via the
+  shared `planned_window` helper (never edited). A populated `timeWindowSettings` passes its outer bounds as naive
+  Zurich times; a start without an end runs to 23:59:59 that day. The window is
+  emptied by `planned_for_status`, so it is `None` once delivered.
+- **`sender`/`receiver` are the address block's `name` only**, else `None`.
+  The city is never published (the contract forbids location strings there), so
+  on today's consumer payloads, where the name is blank, both are `None`.
+- **`delivered_at` is the newest event that maps to `DELIVERED`**, not the newest
+  event; `None` when no event maps (the overall status said delivered alone).
+- **`returning` is unmapped**, so the contract's back-at-sender `delivered` case
+  cannot occur: `delivered` is `status is DELIVERED`.
 - **Fractional seconds are truncated to 6 digits** before parsing: one response
   mixes 7-digit (.NET ticks) and 3-digit fractions.
 - **404 is not an error.** It is the only "unknown number" signal — there is no

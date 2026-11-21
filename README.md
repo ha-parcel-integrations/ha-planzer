@@ -149,7 +149,7 @@ The `status` field is the carrier-agnostic enum shared by the whole integration 
 | `problem` | Planzer flagged the shipment, or a delivery attempt failed |
 | `unknown` | Not yet registered, or a status we have not mapped yet |
 
-Planzer runs no parcel-shop network, so `at_pickup_point` never occurs; `returning` has not been observed either.
+No pickup-point concept has been seen, so the pickup sensors are not exposed and `pickup` is always false (they will be added if a real parcel shows one); `returning` has not been observed either.
 
 The carrier's own human-readable text is always available as `raw_status`.
 

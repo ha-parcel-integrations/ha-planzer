@@ -17,7 +17,8 @@ German and not English or ``sequenceOrder``.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, time, timedelta
+from collections.abc import Iterable
+from datetime import UTC, date, datetime, time, timedelta, tzinfo
 import logging
 import re
 from typing import Any
@@ -422,7 +423,109 @@ def shipment_dimensions(positions: list[dict]) -> dict[str, Any] | None:
     return format_dimensions(*axes)
 
 
-def planned_window(raw: dict) -> tuple[str | None, str | None]:
+def _moment(value: Any, zone: tzinfo) -> tuple[datetime, bool, str] | None:
+    """Return ``(aware datetime, date_only, text)`` for a carrier time, or ``None``.
+
+    A naive time or a bare date gets ``zone``; an aware time keeps its offset
+    and, when it came in as a string, its own spelling.
+    """
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, date):
+        moment = datetime.combine(value, time.min, tzinfo=zone)
+        return moment, True, moment.isoformat()
+    elif isinstance(value, str) and value:
+        try:
+            if len(value) == 10:
+                moment = datetime.combine(
+                    date.fromisoformat(value), time.min, tzinfo=zone
+                )
+                return moment, True, moment.isoformat()
+            parsed = datetime.fromisoformat(value)
+        except ValueError:
+            return None
+        if parsed.tzinfo:
+            return parsed, False, value
+    else:
+        return None
+    moment = parsed if parsed.tzinfo else parsed.replace(tzinfo=zone)
+    return moment, False, moment.isoformat()
+
+
+def _end_of_day(moment: datetime, zone: tzinfo) -> datetime:
+    local = moment.astimezone(zone)
+    return datetime.combine(local.date(), time(23, 59, 59), tzinfo=zone)
+
+
+def planned_window(
+    start: Any, end: Any, *, zone: tzinfo
+) -> tuple[str | None, str | None]:
+    """Return ``(planned_from, planned_to)`` in the canonical window shape.
+
+    ``start`` and ``end`` are ISO strings, dates or datetimes, or ``None``; an
+    epoch number must be converted first (see ``to_iso_timestamp``). A window
+    keeps both ends. One moment with a time ends at ``23:59:59`` the same local
+    day; a date covers ``00:00:00`` to ``23:59:59``; two dates run from the
+    first day's start to the last day's end. Equal values are one moment,
+    reversed values are swapped, and ``planned_to`` is never set without
+    ``planned_from``. ``zone`` is the carrier's own zone: it dates naive times
+    and bare dates and decides which day a moment ends on, so a ``Z`` moment
+    still ends on the carrier's local day. When nothing is left of that day
+    after the moment, there is no ``planned_to``.
+    """
+    first = _moment(start, zone)
+    last = _moment(end, zone)
+    if first is None:
+        first, last = last, None
+    if first is None:
+        return None, None
+
+    def closing(moment: tuple[datetime, bool, str]) -> datetime:
+        return _end_of_day(moment[0], zone) if moment[1] else moment[0]
+
+    if last is not None and closing(last) < first[0]:
+        first, last = last, first
+    if last is not None and closing(last) == first[0]:
+        last = None
+
+    if last is None:
+        end_of_day = _end_of_day(first[0], zone)
+        return first[2], end_of_day.isoformat() if end_of_day > first[0] else None
+    return first[2], closing(last).isoformat() if last[1] else last[2]
+
+
+_NO_WINDOW_STATUSES = frozenset(
+    {ParcelStatus.AT_PICKUP_POINT, ParcelStatus.RETURNING, ParcelStatus.DELIVERED}
+)
+
+
+def planned_for_status(
+    status: ParcelStatus, planned_from: str | None, planned_to: str | None
+) -> tuple[str | None, str | None]:
+    """Empty the delivery window once the parcel is at its destination or done."""
+    if status in _NO_WINDOW_STATUSES:
+        return None, None
+    return planned_from, planned_to
+
+
+def is_pickup(
+    route_flag: bool | None,
+    status: ParcelStatus,
+    event_statuses: Iterable[ParcelStatus | None] = (),
+) -> bool:
+    """Whether the delivery route ends at a pickup point.
+
+    The carrier's own route flag wins; otherwise the parcel having reached
+    ``AT_PICKUP_POINT`` at any point counts, so the value survives collection.
+    """
+    if route_flag:
+        return True
+    return status is ParcelStatus.AT_PICKUP_POINT or any(
+        event is ParcelStatus.AT_PICKUP_POINT for event in event_statuses
+    )
+
+
+def delivery_window(raw: dict) -> tuple[str | None, str | None]:
     """Return the planned ``(from, to)`` delivery window as ISO strings.
 
     ``deliveryDay.date`` is a bare date. ``timeWindowSettings`` *may* narrow it
@@ -469,11 +572,12 @@ def planned_window(raw: dict) -> tuple[str | None, str | None]:
             sorted(key for key, value in window.items() if value),
         )
 
+    if not (starts or ends):
+        return planned_window(day, None, zone=CARRIER_TZ)
     start = min(starts) if starts else time(0, 0, 0)
     end = max(ends) if ends else time(23, 59, 59)
-    return (
-        datetime.combine(day, start, tzinfo=CARRIER_TZ).isoformat(),
-        datetime.combine(day, end, tzinfo=CARRIER_TZ).isoformat(),
+    return planned_window(
+        datetime.combine(day, start), datetime.combine(day, end), zone=CARRIER_TZ
     )
 
 
@@ -487,20 +591,14 @@ def _parse_clock(value: Any) -> time | None:
         return None
 
 
-def _address_line(address: Any) -> str | None:
-    """Return a short human label for a Planzer address block.
+def _address_name(address: Any) -> str | None:
+    """Return the name Planzer shows on an address block, or ``None``.
 
-    Name when Planzer fills it (it was blank on the consumer sample), city
-    otherwise — enough to tell parcels apart on a dashboard without publishing a
-    street address into a state attribute.
+    Never the city or street: the contract publishes names only.
     """
     if not isinstance(address, dict):
         return None
-    name = (address.get("name") or "").strip()
-    city = (address.get("city") or "").strip()
-    if name and city:
-        return f"{name}, {city}"
-    return name or city or None
+    return (address.get("name") or "").strip() or None
 
 
 def normalize_parcel(raw: dict, *, include_history: bool = False) -> dict:
@@ -516,8 +614,9 @@ def normalize_parcel(raw: dict, *, include_history: bool = False) -> dict:
     * ``status`` comes from ``overallStatus`` and falls back to the newest
       position event, so a shipment whose overall status is missing still
       reports its last scan.
-    * ``pickup`` / ``pickup_point`` are always ``False`` / ``None`` — Planzer
-      runs no parcel-shop network, so ``at_pickup_point`` cannot occur.
+    * ``pickup`` / ``pickup_point`` are always ``False`` / ``None`` — no
+      pickup-point concept has been seen, so neither pickup sensor is exposed
+      and ``pickup`` is constant ``False``; add both if a real parcel shows one.
     * ``weight`` is summed across positions (g → kg); ``dimensions`` are only
       published for a single-position shipment (mm → cm).
     """
@@ -555,23 +654,31 @@ def normalize_parcel(raw: dict, *, include_history: bool = False) -> dict:
     delivered = status is ParcelStatus.DELIVERED
 
     delivered_at = None
-    if delivered and events:
-        delivered_at = to_iso_timestamp(events[-1].get("createdAt"))
+    if delivered:
+        delivered_at = next(
+            (
+                to_iso_timestamp(event.get("createdAt"))
+                for event in reversed(events)
+                if map_event_status(localized(event.get("text"), "german"))
+                is ParcelStatus.DELIVERED
+            ),
+            None,
+        )
 
-    planned_from, planned_to = (None, None) if delivered else planned_window(raw)
+    planned_from, planned_to = planned_for_status(status, *delivery_window(raw))
 
     return {
         "carrier": "Planzer",
         "barcode": tracking_code,
-        "sender": _address_line(raw.get("pickupAddress")),
-        "receiver": _address_line(raw.get("deliveryAddress")),
+        "sender": _address_name(raw.get("pickupAddress")),
+        "receiver": _address_name(raw.get("deliveryAddress")),
         "status": status,
         "raw_status": localized(overall_text) or localized(last_event_text),
         "delivered": delivered,
         "delivered_at": delivered_at,
         "planned_from": planned_from,
         "planned_to": planned_to,
-        # Planzer has no parcel-shop network — there is nothing to collect.
+        # No pickup-point concept has been seen, so pickup stays constant False.
         "pickup": False,
         "pickup_point": None,
         "url": tracking_url(tracking_code),
