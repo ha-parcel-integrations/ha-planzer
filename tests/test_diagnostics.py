@@ -30,7 +30,9 @@ async def test_diagnostics_redacts_and_counts(hass):
 
     entry = MagicMock()
     entry.options = {"parcels": [{"tracking_code": DELIVERED_CODE}]}
-    entry.runtime_data.coordinator.data = [normalize_parcel(raw)]
+    parcel_data = normalize_parcel(raw)
+    parcel_data["contents"] = "Running shoes"
+    entry.runtime_data.coordinator.data = [parcel_data]
     entry.runtime_data.coordinator.delivered = []
     entry.runtime_data.coordinator.delivered_codes = set()
 
@@ -47,6 +49,7 @@ async def test_diagnostics_redacts_and_counts(hass):
     assert parcel["barcode"] == "**REDACTED**"
     assert parcel["sender"] == "**REDACTED**"
     assert parcel["receiver"] == "**REDACTED**"
+    assert parcel["contents"] == "**REDACTED**"
     # the deep link embeds the shipment number
     assert parcel["url"] == "**REDACTED**"
     assert parcel["raw"]["shipmentNumber"] == "**REDACTED**"

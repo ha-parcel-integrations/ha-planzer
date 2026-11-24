@@ -38,6 +38,7 @@ def _parcel(
         "barcode": barcode,
         "sender": "Sender",
         "receiver": None,
+        "contents": None,
         "status": status,
         "pickup": pickup,
         "planned_from": planned_from,
@@ -124,3 +125,10 @@ def test_next_delivery_skips_a_window_that_has_ended():
     )
     sensor = PlanzerNextDeliverySensor(coordinator, _entry())
     assert sensor.extra_state_attributes["barcode"] == "NEW"
+
+
+def test_next_delivery_carries_the_contents():
+    parcel = _parcel("A", planned_from="2099-05-01T10:00:00Z")
+    parcel["contents"] = "Running shoes"
+    sensor = PlanzerNextDeliverySensor(_coordinator([parcel]), _entry())
+    assert sensor.extra_state_attributes["contents"] == "Running shoes"

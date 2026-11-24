@@ -88,6 +88,10 @@
         "tracking_code": {
           "name": "Numéro de suivi",
           "description": "Le numéro d'expédition Planzer, ou le numéro de commande IKEA Suisse dont il est issu."
+        },
+        "contents": {
+          "name": "Contenu",
+          "description": "Ce que contient le colis, avec vos propres mots. Un nouvel appel pour un colis suivi remplace le contenu ; un texte vide l'efface."
         }
       }
     },
@@ -98,6 +102,20 @@
         "tracking_code": {
           "name": "Numéro de suivi",
           "description": "Le numéro d'expédition Planzer dont le suivi doit être arrêté."
+        }
+      }
+    },
+    "update_contents": {
+      "name": "Mettre à jour le contenu du colis",
+      "description": "Définissez ce que contient un colis, avec vos propres mots, pour un numéro de suivi. Un texte vide efface le contenu.",
+      "fields": {
+        "tracking_code": {
+          "name": "Numéro de suivi",
+          "description": "Le numéro d'expédition Planzer, ou le numéro de commande IKEA Suisse dont il est issu."
+        },
+        "contents": {
+          "name": "Contenu",
+          "description": "Ce que contient le colis, avec vos propres mots. Un texte vide l'efface."
         }
       }
     }

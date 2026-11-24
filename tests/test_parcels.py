@@ -382,6 +382,7 @@ CANONICAL_KEYS = [
     "barcode",
     "sender",
     "receiver",
+    "contents",
     "status",
     "raw_status",
     "delivered",
@@ -409,6 +410,7 @@ def test_normalize_delivered_parcel():
     assert parcel["barcode"] == DELIVERED_CODE
     assert parcel["sender"] is None
     assert parcel["receiver"] is None
+    assert parcel["contents"] is None
     assert parcel["status"] == ParcelStatus.DELIVERED
     assert parcel["raw_status"] == "Shipment delivered"
     assert parcel["delivered"] is True

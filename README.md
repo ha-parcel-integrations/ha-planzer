@@ -44,6 +44,7 @@ Planzer Paket delivers across the whole of Switzerland and the Principality of L
 - Summary sensors: incoming parcels, next delivery, recently delivered parcels
 - Read-only **Deliveries** calendar with the expected delivery windows
 - `planzer.track_parcel` / `planzer.untrack_parcel` services, so a dashboard button can add a parcel
+- A `contents` note per parcel (`planzer.update_contents`), shown as the calendar event title and on the next-delivery sensor
 - Events + device triggers for no-code automations (parcel registered, status changed, delivered, delivery time changed)
 - Opt-in per-parcel status history
 - Manual refresh button and a diagnostic last-update sensor
@@ -170,8 +171,11 @@ Every payload is the full normalised parcel plus the hub's `device_id`. Events a
 
 | Service | Fields | Description |
 |---|---|---|
-| `planzer.track_parcel` | `tracking_code` | Start tracking a parcel |
+| `planzer.track_parcel` | `tracking_code`, `contents` (optional) | Start tracking a parcel |
 | `planzer.untrack_parcel` | `tracking_code` | Stop tracking a parcel |
+| `planzer.update_contents` | `tracking_code`, `contents` | Set, replace or clear (empty text) a note on what is in a parcel |
+
+The `contents` text is stored locally, never sent to Planzer, and fills the parcel's `contents` field; it titles the parcel's calendar event and shows on the next-delivery sensor.
 
 ## Examples
 
